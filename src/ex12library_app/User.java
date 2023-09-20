@@ -1,6 +1,6 @@
 package ex12library_app;
 
-public  class User {
+public class User {
     private String name;
     private Library library;// definesc un atribut al clasei User de tip Library
 
@@ -27,3 +27,4 @@ public  class User {
 
 
 }
+

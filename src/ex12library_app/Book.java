@@ -48,8 +48,12 @@ public class Book {
         return borrowedNumberOfCopies;
     }
 
+
     public void setBorrowedNumberOfCopies(int borrowedNumberOfCopies) {
         this.borrowedNumberOfCopies = borrowedNumberOfCopies;
+    }
+    public boolean isAvailable(){
+        return totalNumberOfCopies > borrowedNumberOfCopies;
     }
 
     @Override
