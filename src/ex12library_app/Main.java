@@ -31,11 +31,11 @@ public class Main {
         try {
             System.out.println("sterge carti ");
             admin.deleteBook("10003");
-            admin.deleteBook("10006");
+            admin.deleteBook("10006");//aici am vrut sa testez exceptia
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        try{
+        try {
             System.out.println("sterge copii ");
             admin.deleteBook("10001", 2);
             admin.deleteBook("10002", 5);
@@ -50,29 +50,38 @@ public class Main {
         admin.listBookDetails("10005");
 
         try {
-            client1.isBookAvailable("10007");
+            client1.isBookAvailable("10007");//aici am testat exceptia
             client1.isBookAvailable("10003");
             client2.isBookAvailable("10001");
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
-        try{
+        try {
             System.out.println("imprumuta o carte");
-            client2.borrowBook("10003", client2);
-            client1.borrowBook("10001", client1);
-            client2.borrowBook("10004", client2);
-            client1.borrowBook("10002", client1);
-            client2.borrowBook("10001", client2);
-            client2.borrowBook("10007", client2);
+            client1.borrowBook("10001");
+            client1.borrowBook("10002");
+            client2.borrowBook("10001");
+            client2.borrowBook("10003");
+            client2.borrowBook("10004");
+            client2.borrowBook("10002");
+            client2.borrowBook("10005");
+            client2.borrowBook("10001");//aici am testat limita de 5 carti imprumutate
+
+            client2.borrowBook("10007");//am testat exceptia
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+
         try {
             System.out.println("returneaza cartea");
-            client1.returnBook("10001", client1);
-            client2.returnBook("10001", client2);
-            client1.returnBook("10002", client1);
-            //   client1.returnBook("10007",client1);
+
+            client2.returnBook("10004");
+            client2.listBorrowedBookCodes();//aici am testat sa vad daca s-a sters corect
+            client1.returnBook("10001");
+            client1.listBorrowedBookCodes();//aici am testat sa vad daca s-a sters corect
+            client2.returnBook("10002");
+            client2.returnBook("10001");
+            client1.returnBook("10007");//am testat exceptia
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }

@@ -44,11 +44,11 @@ public class Library {
     }
 
     public void deleteBook(int startIndex){
-        //stergem cartea :mutam cartea din dreapta in locul cartii de sters,la stanga
+        //sterg cartea :mut cartea din dreapta in locul cartii de sters,la stanga
         for (int i = startIndex; i < numberOfBooks; i++) {
             booksList[i] = booksList[i+1];
         }
-        //actualizam nr de carti
+        //actualizez nr de carti
         numberOfBooks--;
     }
     public void addBookInList(Book book) {

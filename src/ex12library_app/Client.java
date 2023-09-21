@@ -36,21 +36,25 @@ public class Client extends User {
         this.numberOfBorrowedBooks = numberOfBorrowedBooks;
     }
 
-    //isBookAvailable() - Va cauta o carte in biblioteca dupa ISBNCode si va afisa daca este sau nu disponibila pentru imprumut
-    public boolean isBookAvailable(String ISBNCode) {
+    public void listBorrowedBookCodes() {
+        for (String code : borrowedBookCodes) {
+            System.out.println(code);
+        }
+    }
+
+    // cauta o carte in biblioteca dupa ISBNCode si afiseaza daca este sau nu disponibila pentru imprumut
+    public void isBookAvailable(String ISBNCode) {
         Book bookExist = getLibrary().findBookByISBNCode(ISBNCode);
         if (bookExist == null) {
             System.out.println("cartea cu ISBNCode: " + ISBNCode + " nu este disponibila");
-            return false;
         } else if (bookExist.getTotalNumberOfCopies() >= 1) {
             System.out.println("cartea cu ISBNCode: " + ISBNCode + " este disponibila");
-            return true;
         }
-        return true;
+
     }
 
 
-    //viewAvailableBooks() - va afisa in consola toate cartile disponibile din biblioteca (adica cartile care au borrowedNumberOfCopies mai mic
+    //afiseaza in consola toate cartile disponibile din biblioteca (adica cartile care au borrowedNumberOfCopies mai mic
     //decat totalNumberOfCopies)
     public void viewAvailableBooks() {
         Book[] booksList = getLibrary().getBooksList();
@@ -66,7 +70,7 @@ public class Client extends User {
     // in lista de coduri a clientului si In acelasi timp, cartii cu acelasi ISBNCode din lista de carti din librarie ii va fi incrementat
     // atributul borrowedNumberOfCopies cu 1. Atentie! Operatia de imprumutare nu va fi posibila pentru o carte daca borrowedNumberOfCopies
     // este egal cu totalNumberOfCopies
-    public void borrowBook(String ISBNCode,Client client) throws Exception {
+    public void borrowBook(String ISBNCode) throws Exception {
         //varianta cu spargere in sub metode
         Book foundBook = getLibrary().findBookByISBNCode(ISBNCode);
         if (foundBook == null) {
@@ -75,9 +79,12 @@ public class Client extends User {
         if (!foundBook.isAvailable()) {
             throw new Exception("Cartea cu ISBNCode: " + ISBNCode + " nu este disponibila");
         }
-       client.getBorrowedBookCodes()[numberOfBorrowedBooks] = foundBook.getISBNCode();
+        if (numberOfBorrowedBooks == 5) {
+            throw new Exception("ai atins limita maxima de 5 carti,nu mai poti imprumuta");
+        }
+        getBorrowedBookCodes()[numberOfBorrowedBooks] = foundBook.getISBNCode();
         numberOfBorrowedBooks++;
-        client.setBorrowedBookCodes(getBorrowedBookCodes());
+        setBorrowedBookCodes(getBorrowedBookCodes());
         //incrementez numărul de copii împrumutate
         foundBook.setBorrowedNumberOfCopies((foundBook.getBorrowedNumberOfCopies() + 1));
         //scad o copie din totalul de copii
@@ -106,32 +113,49 @@ public class Client extends User {
 //        return true;
     }
 
-    public void deleteISBNCode(int startIndex) {
-        for (int j = startIndex; j < numberOfBorrowedBooks - 1; j++) {
-            borrowedBookCodes[j] = borrowedBookCodes[j + 1];
+    public void deleteISBNCode(String ISBNCode) {
+        //caut in lista de coduri ale cartilor imprumutate
+        for (int i = 0; i < numberOfBorrowedBooks; i++) {
+            //daca am gasit codul
+            if (borrowedBookCodes[i].equals(ISBNCode)) {
+                borrowedBookCodes[i] = null;//sterg codul gasit
+                for (int j = i; j < borrowedBookCodes.length - 1; j++) {
+                    if (borrowedBookCodes[j] == null) {
+                        borrowedBookCodes[j] = borrowedBookCodes[j + 1];//mut codurile nule la dreapta
+                        borrowedBookCodes[j + 1] = null;
+                    }
+                }
+                break;
+            }
         }
-        borrowedBookCodes[numberOfBorrowedBooks - 1] = null;
         numberOfBorrowedBooks--;
     }
 
     //returnBook() - va returna o carte in biblioteca dupa ISBNCode, ceea ce va avea doua efecte: Codul ISBNCode va disparea din lista de coduri
 // ale clientului si In acelasi timp, cartii cu acel ISBNCode din lista de carti a bibliotecii ii va fi decrementat atributul
 // borrowedNumberOfCopies cu 1.
-    public void returnBook(String ISBNCode,Client client) throws Exception {
-        Book foundBook = getLibrary().findBookByISBNCode(ISBNCode);
-        //daca cartea nu este in lista de carti imprumutate ale clientului arunc exceptie
-        for (int i = 0; i < client.getNumberOfBorrowedBooks(); i++) {
-            if (!ISBNCode.equals(getBorrowedBookCodes()[i])) {
-                throw new Exception("nu ai imprumutat cartea cu codul ISBN: " + ISBNCode);
-            }
-            if(ISBNCode.equals(getBorrowedBookCodes()[i])){
-                //eliminam cartea din lista de carti imprumutate a clientului
-                client.deleteISBNCode(i);
-            }
+    public void returnBook(String ISBNCode) throws Exception {
+        if (!isBorrowedBookInList(ISBNCode)) {  //daca cartea nu este in lista de carti imprumutate ale clientului arunc exceptie
+            throw new Exception("nu ai imprumutat cartea cu codul ISBN: " + ISBNCode);
         }
-        //adaug cartea la totalul de copii
-        foundBook.setTotalNumberOfCopies((foundBook.getTotalNumberOfCopies() + 1));
-        System.out.println("cartea cu ISBN: " + ISBNCode + " a fost returnata");
+        if (isBorrowedBookInList(ISBNCode)) {
+            //elimin cartea din lista de carti imprumutate a clientului
+            deleteISBNCode(ISBNCode);
+            Book foundBook = getLibrary().findBookByISBNCode(ISBNCode);
+            //adaug cartea la totalul de copii
+            foundBook.setTotalNumberOfCopies((foundBook.getTotalNumberOfCopies() + 1));
+            System.out.println("cartea cu ISBN: " + ISBNCode + " a fost returnata");
+        }
+    }
+
+    public boolean isBorrowedBookInList(String ISBNCode) {
+        for (String code : borrowedBookCodes) {
+            if (ISBNCode.equals(code)) {
+                return true;
+            }
+
+        }
+        return false;
     }
 }
 
